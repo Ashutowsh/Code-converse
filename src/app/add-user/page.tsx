@@ -2,8 +2,7 @@ import { auth, clerkClient } from '@clerk/nextjs/server'
 import { notFound, redirect } from 'next/navigation';
 import prisma from '../../../lib/prisma';
 
-async function AddUser() {
-
+const AddUser = async() =>  {
     const {userId} = await auth();
     if(!userId) notFound();
 
@@ -14,7 +13,7 @@ async function AddUser() {
         return new Error('User email not found');
 
     try {
-        const createdUser = await prisma.user.upsert({
+        await prisma.user.upsert({
             where: {
               email: user.emailAddresses[0].emailAddress ?? "",
             },
