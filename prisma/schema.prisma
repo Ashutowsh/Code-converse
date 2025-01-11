@@ -26,13 +26,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Project Project[]
+  UsersToProjects UsersToProjects[]
 }
 
 model Project {
-  id     String @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
+  id String @id @default(cuid())
 
   title       String
   githubUrl   String
@@ -41,4 +39,19 @@ model Project {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+
+  UsersToProjects UsersToProjects[]
+}
+
+model UsersToProjects {
+  id String @id @default(cuid())
+
+  userId    String
+  projectId String
+
+  user    User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
