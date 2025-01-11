@@ -1,17 +1,18 @@
 'use client';
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar';
-import { sidebarItems, projects } from '@/constants';
+import { sidebarItems } from '@/constants';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from './ui/button';
 import { Plus } from 'lucide-react';
+import { useProject } from '@/hooks/use-project';
 
 export function SideComponent() {
   const pathname = usePathname();
   const {open} = useSidebar();
-  console.log("Pathname :", pathname)
+  const {projects, projectId, setProjectId} = useProject();
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>Logo</SidebarHeader>
@@ -43,17 +44,18 @@ export function SideComponent() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {projects.map((project) => (
-                <SidebarMenuItem key={project.name}>
-                  <SidebarMenuButton asChild>
+              {projects?.map((project) => (
+                <SidebarMenuItem key={project.title}>
+                  <SidebarMenuButton asChild 
+                  onClick={() => {setProjectId(project.id)}}>
                     <div>
                       <div className={cn(
                         'rounded-sm border size-6 flex items-center justify-center text-sm bg-white text-primary',
-                        {'bg-primary text-white': true}
+                        {'bg-primary text-white': project.id === projectId}
                       )}>
-                        {project.name[0]}
+                        {project.title[0]}
                       </div>
-                      <span>{project.name}</span>
+                      <span>{project.title}</span>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

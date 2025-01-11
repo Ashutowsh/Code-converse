@@ -17,21 +17,37 @@ import { createProjectSchema } from '@/schemas/createProjectSchema'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { trpc } from '@/app/_trpc/client'
+import { toast } from 'sonner'
+import { useProject } from '@/hooks/use-project'
 
-const CreateProject = () => {
+const CreateProjectPage = () => {
+  const {getProjects} = useProject()
+  const createProject = trpc.createProject.useMutation({
+    onSuccess : () => {
+      toast.success("Project created successfully.")
+      getProjects.refetch()
+      form.reset()
+    },
 
+    onError : () => {
+      toast.error("Failed to create project.")
+    },
+  });
+  
   const form = useForm<z.infer<typeof createProjectSchema>>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       projectTitle: "",
       githubUrl: "",
       githubToken: "",
-    },
+    }
   })
 
 
   function onSubmit(values: z.infer<typeof createProjectSchema>) {
-    console.log(values)
+    // console.log(values)
+    createProject.mutate(values)
   }
 
 
@@ -98,4 +114,4 @@ const CreateProject = () => {
   )
 }
 
-export default CreateProject
+export default CreateProjectPage
