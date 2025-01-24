@@ -2,7 +2,7 @@
 
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar';
 import { sidebarItems } from '@/constants';
-import { cn } from '@/lib/utils';
+import { cn } from '@/helpers/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from './ui/button';

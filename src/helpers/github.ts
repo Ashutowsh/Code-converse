@@ -1,6 +1,8 @@
 import {Octokit} from "octokit";
 import prismaDb from "./prisma";
 import env from "./env";
+import axios from "axios"
+import { aiSummarise } from "./ai";
 
 export const octokit = new Octokit({
     auth : env.gitHub.token
@@ -55,7 +57,43 @@ export const pollCommits = async(projectId : string) => {
     const commitHashes = await getCommitHashes(githubUrl)
 
     const unprocessedCommits = await filterunprocessedCommits(projectId, commitHashes)
-    return unprocessedCommits
+    const summaryResponse = await Promise.allSettled(unprocessedCommits.map((commit)=> {
+        return summariseCommit(githubUrl, commit.commitHash)
+    } ))
+
+    const summarises = summaryResponse.map((response) => {
+        if(response.status === 'fulfilled') {
+            return response.value as string
+        }
+        return ""
+    })
+
+    const commits = await prismaDb.commit.createMany({
+        data : summarises.map((summary, index) => {
+            return {
+                projectId: projectId,
+                commitHash : unprocessedCommits[index].commitHash,
+                commitMessage: unprocessedCommits[index].commitMessage,
+                commitAuthorAvatar: unprocessedCommits[index].commitAuthorAvatar,
+                commitAuthorName: unprocessedCommits[index].commitAuthorName,
+                commitData: unprocessedCommits[index].commitData,
+                summary
+            }
+        })
+    })
+
+    return commits
+}
+
+async function summariseCommit(githubUrl: string, commitHash: string) {
+
+    const {data} = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
+        headers : {
+            Accept : 'application/vnd.github.v3.diff'
+        }
+    })
+
+    return aiSummarise(data) || ""
 }
 
 const filterunprocessedCommits = async(projectId: string, commitHashes: CommitResponse[]) => {

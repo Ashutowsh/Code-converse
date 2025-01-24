@@ -1,5 +1,5 @@
 import { protectedProcedures, router } from "./trpc";
-import prismaDb from "@/lib/prisma";
+import prismaDb from "@/helpers/prisma";
 import { createProjectSchema } from "@/schemas/createProjectSchema";
 
 export const appRouter = router({
